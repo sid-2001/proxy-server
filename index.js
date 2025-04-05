@@ -50,7 +50,7 @@ const generateZapperSessionIdApi = async ({ amount, currency }) => {
       cancelUrl: 'https://forex-impro-test.netlify.app/transaction/create',
 
       returnUrl: 'https://forex-impro-test.netlify.app/transaction',
-      cancelUrl: '',
+
       requestId: uuid(), // Unique ID for request
       origin: 'https://merchantstore.com',
       customFields: [
@@ -280,7 +280,7 @@ app.post("/cashfree/api/create-order", async (req, res) => {
 app.use("/api2/bob", async (req, res) => {
   try {
     // Remove "/api/bob" from req.originalUrl
-    const newPath = req.originalUrl.replace(/^\/api\/bob/, "");
+    const newPath = req.originalUrl.replace(/^\/api2\/bob/, "");
 
     // Construct new backend URL
 
