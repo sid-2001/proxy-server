@@ -195,6 +195,7 @@ return
 });
 
 
+
 app.post("/cashfree/api/create-order", async (req, res) => {
   try {
 
@@ -286,6 +287,107 @@ app.use("/api2/bob", async (req, res) => {
 
   
     const backendURL = `http://64.227.139.142:9000${newPath}`;
+console.log("origanl url",backendURL)
+    // Remove the `host` header to prevent SSL issues
+    const headers = { ...req.headers };
+    delete headers.host;
+
+    // Forward request to the Spring Boot backend
+    const response = await axios({
+      method: req.method, // Forward the same HTTP method (GET, POST, etc.)
+      url: backendURL, // New backend URL without "/api/bob"
+      data: req.body, // Forward the request body
+      headers, // Forward necessary headers
+    });
+
+    console.log(`Response from backend (${response.status}):`, response.data);
+
+    // Send backend's response to the client
+    res.status(response.status).json(response.data);
+  } catch (error) {
+    console.error("Error forwarding request:", error.message);
+
+    if (error.code === "ECONNRESET") {
+      console.error("Connection reset by peer (backend may be down).");
+      return res.status(502).json({ error: "Backend server is not responding." });
+    }
+
+    if (error.code === "ETIMEDOUT") {
+      console.error("Request timed out.");
+      return res.status(504).json({ error: "Backend server took too long to respond." });
+    }
+
+    if (error.response) {
+      console.error("Backend error:", error.response.status, error.response.data);
+      return res.status(error.response.status).json(error.response.data);
+    }
+
+    res.status(500).json({ error: "An unknown error occurred while processing your request." });
+  }
+});
+
+
+app.use("/api2/bob", async (req, res) => {
+  try {
+    // Remove "/api/bob" from req.originalUrl
+    const newPath = req.originalUrl.replace(/^\/api2\/bob/, "");
+
+    // Construct new backend URL
+
+  
+    const backendURL = `http://64.227.139.142:9000${newPath}`;
+console.log("origanl url",backendURL)
+    // Remove the `host` header to prevent SSL issues
+    const headers = { ...req.headers };
+    delete headers.host;
+
+    // Forward request to the Spring Boot backend
+    const response = await axios({
+      method: req.method, // Forward the same HTTP method (GET, POST, etc.)
+      url: backendURL, // New backend URL without "/api/bob"
+      data: req.body, // Forward the request body
+      headers, // Forward necessary headers
+    });
+
+    console.log(`Response from backend (${response.status}):`, response.data);
+
+    // Send backend's response to the client
+    res.status(response.status).json(response.data);
+  } catch (error) {
+    console.error("Error forwarding request:", error.message);
+
+    if (error.code === "ECONNRESET") {
+      console.error("Connection reset by peer (backend may be down).");
+      return res.status(502).json({ error: "Backend server is not responding." });
+    }
+
+    if (error.code === "ETIMEDOUT") {
+      console.error("Request timed out.");
+      return res.status(504).json({ error: "Backend server took too long to respond." });
+    }
+
+    if (error.response) {
+      console.error("Backend error:", error.response.status, error.response.data);
+      return res.status(error.response.status).json(error.response.data);
+    }
+
+    res.status(500).json({ error: "An unknown error occurred while processing your request." });
+  }
+});
+
+
+
+app.use("/api3/bsna", async (req, res) => {
+  try {
+    // Remove "/api/bob" from req.originalUrl
+    const newPath = req.originalUrl.replace(/^\/api3\/bsna/, "");
+
+    // Construct new backend URL
+
+    http://64.227.139.142:8000/api/v1/users/login
+
+  
+    const backendURL = `http://64.227.139.142:8000${newPath}`;
 console.log("origanl url",backendURL)
     // Remove the `host` header to prevent SSL issues
     const headers = { ...req.headers };
