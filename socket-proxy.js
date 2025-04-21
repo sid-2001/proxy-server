@@ -4,7 +4,7 @@ const WebSocket = require('ws');
 
 // ----- Configuration -----
 const APP_PORT = +(process.env.PORT || 3000);
-const BACKEND_HOST = process.env.BACKEND_HOST || '127.0.0.1';
+const BACKEND_HOST = process.env.BACKEND_HOST || '64.227.139.142';
 const BACKEND_PORT = +(process.env.BACKEND_PORT || 8000);
 
 // ----- Express App Setup -----
