@@ -25,40 +25,56 @@ const wss = new WebSocket.Server({ server: httpServer });
 wss.on('connection', (clientSocket, req) => {
   console.log(`Incoming WS connection: ${req.url}`);
 
-  // Build backend target URL (plain WS)
   const targetUrl = `ws://${BACKEND_HOST}:${BACKEND_PORT}${req.url}`;
   console.log(`Proxying WebSocket to: ${targetUrl}`);
 
   const targetSocket = new WebSocket(targetUrl);
 
   targetSocket.on('open', () => {
+    console.log(`Connected to backend WS: ${targetUrl}`);
+
     // client -> backend
     clientSocket.on('message', (msg) => {
+      console.log(`[Client -> Backend] ${msg}`);
       targetSocket.send(msg);
     });
 
     // backend -> client
     targetSocket.on('message', (msg) => {
+      console.log(`[Backend -> Client] ${msg}`);
       clientSocket.send(msg);
     });
   });
 
-  // Error & close handling
-  const cleanup = () => {
-    if (clientSocket.readyState === WebSocket.OPEN) clientSocket.close();
-    if (targetSocket.readyState === WebSocket.OPEN) targetSocket.close();
-  };
+  // Error handling while navigating to backend
+  targetSocket.on('error', (err) => {
+    console.error(`Error connecting to backend WS: ${err.message}`);
+    cleanup();
+  });
 
   clientSocket.on('error', (err) => {
-    console.error('Client error:', err.message);
+    console.error(`Client socket error: ${err.message}`);
     cleanup();
   });
-  targetSocket.on('error', (err) => {
-    console.error('Upstream error:', err.message);
+
+  clientSocket.on('close', (code, reason) => {
+    console.log(`Client socket closed: Code=${code}, Reason=${reason}`);
     cleanup();
   });
-  clientSocket.on('close', cleanup);
-  targetSocket.on('close', cleanup);
+
+  targetSocket.on('close', (code, reason) => {
+    console.log(`Backend socket closed: Code=${code}, Reason=${reason}`);
+    cleanup();
+  });
+
+  const cleanup = () => {
+    if (clientSocket.readyState === WebSocket.OPEN) {
+      clientSocket.close();
+    }
+    if (targetSocket.readyState === WebSocket.OPEN) {
+      targetSocket.close();
+    }
+  };
 });
 
 // ----- Start Server -----
