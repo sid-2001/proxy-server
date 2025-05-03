@@ -1,6 +1,7 @@
 const express = require('express');
 const http = require('http');
 const WebSocket = require('ws');
+const axios = require("axios");
 
 // ----- Configuration -----
 const APP_PORT = +(process.env.PORT || 3000);
