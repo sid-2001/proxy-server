@@ -65,11 +65,11 @@ wss.on('connection', (clientSocket, req) => {
     // client -> backend
     clientSocket.on('message', (msg) => {
       console.log(`[Client -> Backend] ${msg}`);
-      targetSocket.send(msg);
+      targetProdSocket.send(msg);
     });
 
     // backend -> client
-    targetSocket.on('message', (msg) => {
+    targetProdSocket.on('message', (msg) => {
       console.log(`[Backend -> Client] ${msg}`);
       clientSocket.send(msg);
     });
