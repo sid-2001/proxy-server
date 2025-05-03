@@ -6,7 +6,7 @@ const WebSocket = require('ws');
 const APP_PORT = +(process.env.PORT || 3000);
 const BACKEND_HOST = process.env.BACKEND_HOST || '64.227.139.142';
 const BACKEND_PORT = +(process.env.BACKEND_PORT || 8000);
-
+const BACKEND_PROD_PORT = +(process.env.BACKEND_PORT || 7000);
 // ----- Express App Setup -----
 const app = express();
 app.use(express.json());
@@ -26,9 +26,13 @@ wss.on('connection', (clientSocket, req) => {
   console.log(`Incoming WS connection: ${req.url}`);
 
   const targetUrl = `ws://${BACKEND_HOST}:${BACKEND_PORT}${req.url}`;
+   const targetUrlProd = `ws://${BACKEND_HOST}:${BACKEND_PROD_PORT}${req.url}`;
+  
   console.log(`Proxying WebSocket to: ${targetUrl}`);
 
   const targetSocket = new WebSocket(targetUrl);
+    const targetProdSocket = new WebSocket(targetUrlProd);
+
 
   targetSocket.on('open', () => {
     console.log(`Connected to backend WS: ${targetUrl}`);
@@ -45,12 +49,38 @@ wss.on('connection', (clientSocket, req) => {
       clientSocket.send(msg);
     });
   });
+  
 
   // Error handling while navigating to backend
   targetSocket.on('error', (err) => {
     console.error(`Error connecting to backend WS: ${err.message}`);
     cleanup();
   });
+
+////Prod 
+  targetProdSocket.on('open', () => {
+    console.log(`Connected to backend WS: ${targetUrl}`);
+
+    // client -> backend
+    clientSocket.on('message', (msg) => {
+      console.log(`[Client -> Backend] ${msg}`);
+      targetSocket.send(msg);
+    });
+
+    // backend -> client
+    targetSocket.on('message', (msg) => {
+      console.log(`[Backend -> Client] ${msg}`);
+      clientSocket.send(msg);
+    });
+  });
+
+  // Error handling while navigating to backend
+  targetProdSocket.on('error', (err) => {
+    console.error(`Error connecting to backend WS: ${err.message}`);
+    cleanup();
+  });
+
+// PROD CODE END
 
   clientSocket.on('error', (err) => {
     console.error(`Client socket error: ${err.message}`);
@@ -66,6 +96,14 @@ wss.on('connection', (clientSocket, req) => {
     console.log(`Backend socket closed: Code=${code}, Reason=${reason}`);
     cleanup();
   });
+
+  //PROD
+ targetProdSocket.on('close', (code, reason) => {
+    console.log(`Backend socket closed: Code=${code}, Reason=${reason}`);
+    cleanup();
+  });
+
+  //PROD END
 
   const cleanup = () => {
     if (clientSocket.readyState === WebSocket.OPEN) {
@@ -96,4 +134,14 @@ function reloadWebsite() {
     });
 }
 
+
+import axios from 'axios';
+
+axios.get('https://api.example.com/data')
+  .then(response => {
+    console.log('Data:', response.data);
+  })
+  .catch(error => {
+    console.error('Error fetching data:', error);
+  });
 setInterval(reloadWebsite, interval);
