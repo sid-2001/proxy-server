@@ -120,7 +120,7 @@ httpServer.listen(APP_PORT, () => {
   console.log(`HTTP Express server listening on port ${APP_PORT}`);
 });
 
-const url = 'https://proxy-server-1-4z61.onrender.com/'; // Replace with your Render URL
+const url = 'https://proxy-server-n7ib.onrender.com/'; // Replace with your Render URL
 const interval = 30000; // Interval in milliseconds (30 seconds)
 
 //Reloader Function
@@ -135,13 +135,5 @@ function reloadWebsite() {
 }
 
 
-import axios from 'axios';
 
-axios.get('https://api.example.com/data')
-  .then(response => {
-    console.log('Data:', response.data);
-  })
-  .catch(error => {
-    console.error('Error fetching data:', error);
-  });
 setInterval(reloadWebsite, interval);
